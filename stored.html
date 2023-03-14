@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick roaster generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #employeeForm {
+            max-width: 500px;
+        }
+
+        label {
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px #ccc solid;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="date"] {
+            height: 38px;
+        }
+
+        button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .delete-btn {
+            color: red;
+            cursor: pointer;
+        }
+
+        button[type="generate"] {
+            background-color: #020000;
+            color: white;
+            cursor: pointer;
+            width: 250px;
+            padding: 10px;
+            margin-bottom: 20px;
+            margin-top: 25px; 
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button[type="save"] {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            width: 100px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 17px;
+        }
+
+        .roasterSetting {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin-bottom: 15px;
+        }
+
+        .cards {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        @media (min-width: 600px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 900px) {
+            .cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        input[type="number"] {
+            /* width: 45px; */
+            margin-bottom: 0;
+        }
+
+        .roasterSetting label {
+            margin: 0;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Quick roaster generator</h1>
+
+    <form id="roasterSettingsForm" class="roasterSetting">
+
+        <div class="cards">
+            <div class="card">
+                <label for="selectDays">Roaster Days:</label>
+                <input type="number" min="0" id="selectDays" required name="selectDays">
+            </div>
+            <div class="card">
+                <label for="compOff">Compulsory Off:</label>
+                <input type="number" min="0" id="compOff" required name="compOff">
+            </div>
+            <div class="card">
+                <label for="compOff">Min Night Shift:</label>
+                <input type="number" min="0" id="compOff" required name="compOff">
+            </div>
+            <div class="card">
+                <button type="save">Save</button>
+            </div>
+        </div>
+    </form>
+
+    <form id="employeeForm">
+        <label for="employeeName">Employee Name:</label>
+        <input type="text" id="employeeName" required name="employeeName">
+
+        <label for="offPreference">Off Preference:</label>
+        <input type="date" id="offPreference" required name="offPreference" multiple>
+
+        <button type="submit">Add</button>
+    </form>
+
+    <h2>All Employee Details</h2>
+    <table id="employeeTable">
+        <thead>
+            <tr>
+                <th>Employee Name</th>
+                <th>Off Preference</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div style="margin: 0 auto; display: table;">
+        <button type="generate">Generate Roaster</button>
+    </div>
+
+    <script>
+        const form = document.querySelector('#employeeForm');
+        const tableBody = document.querySelector('#employeeTable tbody');
+
+        // Function to create a new row in the table
+        function createRow(name, offPreference) {
+            const newRow = tableBody.insertRow();
+            const nameCell = newRow.insertCell();
+            const offPreferenceCell = newRow.insertCell();
+            const deleteCell = newRow.insertCell();
+            nameCell.textContent = name;
+            offPreferenceCell.textContent = offPreference;
+            const deleteBtn = document.createElement('span');
+            deleteBtn.classList.add('delete-btn');
+            deleteBtn.textContent = 'X';
+            deleteCell.appendChild(deleteBtn);
+        }
+
+        // Function to display employee data from local storage
+        function displayData() {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const { name, offPreference } = JSON.parse(localStorage.getItem(key));
+                createRow(name, offPreference);
+            }
+        }
+
+        // Add event listener to form submit
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = e.target.elements.employeeName.value;
+            const offPreference = e.target.elements.offPreference.value;
+            const data = {
+                name,
+                offPreference,
+            };
+            localStorage.setItem(name, JSON.stringify(data));
+            createRow(name, offPreference);
+            form.reset();
+        });
+
+        // Add event listener to delete button
+        tableBody.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const row = e.target.parentElement.parentElement;
+                const name = row.cells[0].textContent;
+                localStorage.removeItem(name);
+                row.remove();
+            }
+        });
+
+        displayData();
+
+        //   Convert all data into an json
+        let allData = [];
+        for (var i = 0, len = localStorage.length; i < len; ++i) {
+            allData.push(JSON.stringify(JSON.parse(localStorage.getItem(localStorage.key(i)))))
+        }
+        console.log(allData, 'allData')
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <title>Shift Roster Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+
+  </head>
+  <body>
+    <h1>Shift Roster Generator</h1>
+    <p>Enter employee names below:</p>
+    <textarea id="employeeNames"></textarea>
+    <button onclick="generateShiftRoster()">Generate Roster</button>
+
+    <script>
+      function generateShiftRoster() {
+        const employeeNames = document.getElementById("employeeNames").value.split("\n");
+        const numEmployees = employeeNames.length;
+        const numDays = 7;
+        const shiftsPerDay = 3;
+        const shiftNames = ["Morning", "Evening", "Night"];
+        const roster = {};
+
+        // Initialize roster object
+        for (let i = 0; i < numDays; i++) {
+          roster[`Day ${i+1}`] = {
+            Morning: [],
+            Evening: [],
+            Night: []
+          };
+        }
+
+        // Generate shift roster
+        let currentShift = 0;
+        for (let i = 0; i < numDays; i++) {
+          for (let j = 0; j < shiftsPerDay; j++) {
+            for (let k = 0; k < Math.ceil(numEmployees / shiftsPerDay); k++) {
+              if (currentShift >= numEmployees) {
+                currentShift = 0;
+              }
+              roster[`Day ${i+1}`][shiftNames[j]].push(employeeNames[currentShift]);
+              currentShift++;
+            }
+          }
+        }
+
+        // Generate PDF
+        const doc = new jsPDF();
+        let y = 10;
+        for (const day in roster) {
+          doc.text(day, 10, y);
+          y += 10;
+          for (const shift in roster[day]) {
+            doc.text(shift + ": " + roster[day][shift].join(", "), 20, y);
+            y += 10;
+          }
+          y += 5;
+        }
+        doc.save("shift-roster.pdf");
+      }
+    </script>
+  </body>
+</html>
