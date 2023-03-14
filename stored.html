@@ -167,8 +167,8 @@
                 <input type="number" min="0" id="compOff" required name="compOff">
             </div>
             <div class="card">
-                <label for="compOff">Min Night Shift:</label>
-                <input type="number" min="0" id="compOff" required name="compOff">
+                <label for="nightShift">Min Night Shift:</label>
+                <input type="number" min="0" id="nightShift" required name="nightShift">
             </div>
             <div class="card">
                 <button type="save">Save</button>
@@ -204,6 +204,7 @@
 
     <script>
         const form = document.querySelector('#employeeForm');
+        const form2 = document.querySelector('#roasterSettingsForm');
         const tableBody = document.querySelector('#employeeTable tbody');
 
         // Function to create a new row in the table
@@ -240,6 +241,24 @@
             };
             localStorage.setItem(name, JSON.stringify(data));
             createRow(name, offPreference);
+            form.reset();
+        });
+
+        // Add event listener to form submit
+        form2.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const day = e.target.elements.selectDays.value;
+            const compOff = e.target.elements.compOff.value;
+            const nightShift = e.target.elements.nightShift.value;
+            const data = {
+                day,
+                compOff,
+                nightShift
+            };
+            let dataArr = [];
+            dataArr.push(data);
+            localStorage.setItem('roasterSettings', JSON.stringify(dataArr));
+            // createRow(name, offPreference);
             form.reset();
         });
 
